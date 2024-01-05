@@ -9,6 +9,9 @@ import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.net.ProxySelector
 import java.net.URLEncoder
 import java.util.Date
 import kotlin.random.Random
@@ -21,8 +24,13 @@ class ImageGenUtil(private val u: String, private val s: String) {
 //        fun newInstance() = ImageGenUtil(Repository.U, Repository.S)
     }
 
-    private val client = OkHttpClient()
+    private val proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", 7890));
+
+    private val client = OkHttpClient.Builder()
+        .proxy(proxy)
+        .build()
     private val client2 = OkHttpClient.Builder()
+        .proxy(proxy)
         .followRedirects(false)
         .followSslRedirects(false)
         .build()

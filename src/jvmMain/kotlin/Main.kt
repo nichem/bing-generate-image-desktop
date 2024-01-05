@@ -1,9 +1,6 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -16,9 +13,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import utils.ImageGenUtil
 import utils.LocalStore
 
+
+data class BtnState(
+    var enable: Boolean = true,
+    var text: String
+)
 
 @Composable
 @Preview
@@ -28,10 +33,36 @@ fun App() {
     }
 
     MaterialTheme {
-        Button(
-            onClick = { settingIsVisible = true },
-        ) {
-            Text("to Setting")
+        var getBtnState by remember {
+            mutableStateOf(BtnState(text = "获取"))
+        }
+        val scope = rememberCoroutineScope()
+        Row {
+            Button(
+                onClick = { settingIsVisible = true },
+            ) {
+                Text("to Setting")
+            }
+
+            Button(
+                onClick = {
+                    scope.launch(IO) {
+                        getBtnState = getBtnState.copy(enable = false, text = "获取中")
+                        val u = LocalStore.cookieU
+                        val s = LocalStore.cookieS
+                        val genImage = ImageGenUtil(u, s)
+                        val list = genImage.getImages("兔子") {
+                            getBtnState = getBtnState.copy(text = "获取中：${it}%")
+                        }
+                        println("下载链接：$list")
+                        getBtnState = getBtnState.copy(enable = true, text = "获取")
+                    }
+                }, enabled = getBtnState.enable
+            ) {
+                Text(
+                    getBtnState.text
+                )
+            }
         }
 
         SettingDialog(settingIsVisible) {
