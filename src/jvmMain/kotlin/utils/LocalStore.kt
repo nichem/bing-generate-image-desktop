@@ -59,4 +59,10 @@ object LocalStore {
         val time = System.currentTimeMillis()
         return File(imagesDir, "$time.jpeg")
     }
+
+    fun getImageFiles(): List<File> {
+        return imagesDir.listFiles()?.filter {
+            it.name.endsWith(".jpeg") && !it.isHidden
+        } ?: emptyList()
+    }
 }

@@ -1,5 +1,8 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -15,10 +18,12 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import utils.DownloadUtil
 import utils.ImageGenUtil
 import utils.LocalStore
+import java.io.File
 
 
 data class BtnState(
@@ -188,3 +193,13 @@ fun SendLayout(btnState: BtnState, onSend: (String) -> Unit) {
     }
 }
 
+@Composable
+fun ImageList(refresh: Int) {
+    var list: List<File> by remember { mutableStateOf(emptyList()) }
+    LaunchedEffect(refresh) {
+        list = withContext(IO) { LocalStore.getImageFiles() }
+    }
+//    LazyVerticalGrid(columns = ){
+//
+//    }
+}
