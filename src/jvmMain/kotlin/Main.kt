@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -98,7 +99,9 @@ fun main() = application {
     }
     Window(
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(position = WindowPosition(Alignment.Center))
+        state = rememberWindowState(position = WindowPosition(Alignment.Center)),
+        title = "AI生成图片 作者：dlearn",
+        icon = painterResource("icon.png")
     ) {
         MenuBar {
             Menu("文件") {
@@ -136,7 +139,7 @@ fun SettingDialog(visible: Boolean, onClose: () -> Unit) {
         cookieS = LocalStore.cookieS
         proxy = LocalStore.proxy
     }
-    Dialog(onCloseRequest = onClose, visible = visible, title = "设置") {
+    Dialog(onCloseRequest = onClose, visible = visible, title = "设置", icon = painterResource("icon.png")) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
