@@ -1,7 +1,6 @@
 package utils
 
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -46,7 +45,7 @@ object DownloadUtil {
                     downloadedLength += len.toLong()
                     val progress = (downloadedLength * 1.0f / total * 100).toInt()
                     // 下载中
-                    withContext(Main) { onDownloading(progress) }
+                    onDownloading(progress)
                 }
                 fos.flush()
                 fos.close()

@@ -16,6 +16,7 @@ import androidx.compose.ui.window.application
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import utils.DownloadUtil
 import utils.ImageGenUtil
 import utils.LocalStore
 
@@ -33,29 +34,40 @@ fun App() {
             mutableStateOf(BtnState(text = "获取"))
         }
         val scope = rememberCoroutineScope()
-        Row {
-            Button(
-                onClick = {
-                    scope.launch(IO) {
-                        getBtnState = getBtnState.copy(enable = false, text = "获取中")
-                        val genImage = ImageGenUtil(
-                            LocalStore.cookieU,
-                            LocalStore.cookieS,
-                            LocalStore.proxy
-                        )
-                        val list = genImage.getImages("兔子") {
-                            getBtnState = getBtnState.copy(text = "获取中：${it}%")
-                        }
-                        println("下载链接：$list")
-                        getBtnState = getBtnState.copy(enable = true, text = "获取")
+        SendLayout(getBtnState) { text ->
+            val prompt = text.trim()
+            if (prompt.isBlank()) return@SendLayout
+            scope.launch(IO) {
+                getBtnState = getBtnState.copy(enable = false, text = "获取中")
+                val list = loadImageUrls(prompt) {
+                    getBtnState = getBtnState.copy(text = "获取中：$it")
+                }
+                list.forEachIndexed { index, url ->
+                    downloadList(url) {
+                        getBtnState = getBtnState.copy(text = "下载${index + 1}/${list.size}：$it")
                     }
-                }, enabled = getBtnState.enable
-            ) {
-                Text(
-                    getBtnState.text
-                )
+                }
+//                println("下载链接：$list")
+                getBtnState = getBtnState.copy(enable = true, text = "获取")
             }
         }
+    }
+}
+
+private suspend fun loadImageUrls(prompt: String, onCallback: (msg: String) -> Unit): List<String> {
+    val genImage = ImageGenUtil(
+        LocalStore.cookieU,
+        LocalStore.cookieS,
+        LocalStore.proxy
+    )
+    return genImage.getImages(prompt) {
+        onCallback("${it}%")
+    }
+}
+
+private suspend fun downloadList(url: String, onCallback: (msg: String) -> Unit) {
+    DownloadUtil.download(url, LocalStore.getNewImageFile()) {
+        onCallback("$it%")
     }
 }
 
@@ -159,3 +171,20 @@ fun SettingDialog(visible: Boolean, onClose: () -> Unit) {
         }
     }
 }
+
+@Composable
+fun SendLayout(btnState: BtnState, onSend: (String) -> Unit) {
+    var prompt by remember { mutableStateOf("") }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        TextField(
+            prompt,
+            onValueChange = { prompt = it },
+            modifier = Modifier.weight(1f),
+            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent)
+        )
+        Button(onClick = { onSend(prompt) }, enabled = btnState.enable) {
+            Text(btnState.text)
+        }
+    }
+}
+

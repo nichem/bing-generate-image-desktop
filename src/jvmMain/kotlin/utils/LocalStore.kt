@@ -9,19 +9,23 @@ private const val APP_ID = "GenerateImageConfig"
 
 object LocalStore {
     private val gson = Gson()
-    private val localFile = File("${System.getProperty("user.dir")}/$APP_ID.json").apply {
+    private val rootDir = File(System.getProperty("user.dir"))
+    private val configFile = File(rootDir, "$APP_ID.json").apply {
         if (!exists()) {
             createNewFile()
             writeText("{}")
         }
         Log.d("test", "${path}是否存在：${exists()} 是否可写：${canWrite()}")
     }
+    private val imagesDir = File(rootDir, "images").apply {
+        if (!exists()) mkdirs()
+    }
 
-    private fun getJsonObject(): JsonObject = JsonParser.parseString(localFile.readText()).asJsonObject
+    private fun getJsonObject(): JsonObject = JsonParser.parseString(configFile.readText()).asJsonObject
 
     private fun updateJsonObject(jsonObject: JsonObject) {
         val json = jsonObject.toString()
-        localFile.writeText(json)
+        configFile.writeText(json)
     }
 
     private fun JsonObject.add(key: String, value: Any) {
@@ -51,4 +55,8 @@ object LocalStore {
             updateJsonObject(getJsonObject().apply { add("proxy", value) })
         }
 
+    fun getNewImageFile(): File {
+        val time = System.currentTimeMillis()
+        return File(imagesDir, "$time.jpeg")
+    }
 }
