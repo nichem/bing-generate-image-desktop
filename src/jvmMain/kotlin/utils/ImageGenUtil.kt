@@ -1,6 +1,7 @@
 package utils
 
 
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -18,13 +19,20 @@ import kotlin.random.Random
 
 private const val BING_URL = "https://www.bing.com"
 
-class ImageGenUtil(private val u: String, private val s: String) {
+class ImageGenUtil(private val u: String, private val s: String, private val proxyString: String = "") {
     companion object {
 //        private const val BING_URL = "https://www.bing.com"
 //        fun newInstance() = ImageGenUtil(Repository.U, Repository.S)
     }
 
-    private val proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", 7890));
+    private val proxy by lazy {
+        val proxyRegex = Regex(".*?:\\d+")
+        if (proxyRegex.matches(proxyString)) {
+            val address = proxyString.split(":")[0]
+            val port = proxyString.split(":")[1].toInt()
+            Proxy(Proxy.Type.HTTP, InetSocketAddress(address, port))
+        } else null
+    }
 
     private val client = OkHttpClient.Builder()
         .proxy(proxy)

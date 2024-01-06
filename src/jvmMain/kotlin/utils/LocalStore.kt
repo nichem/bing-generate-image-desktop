@@ -5,16 +5,16 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
 
-private const val APP_ID = "GenerateImage"
+private const val APP_ID = "GenerateImageConfig"
 
 object LocalStore {
     private val gson = Gson()
-    private val localFile = File("${System.getProperty("user.home")}/$APP_ID.json").apply {
+    private val localFile = File("${System.getProperty("user.dir")}/$APP_ID.json").apply {
         if (!exists()) {
             createNewFile()
             writeText("{}")
         }
-        Log.d("test", "${path}是否存在：${exists()}")
+        Log.d("test", "${path}是否存在：${exists()} 是否可写：${canWrite()}")
     }
 
     private fun getJsonObject(): JsonObject = JsonParser.parseString(localFile.readText()).asJsonObject
@@ -43,6 +43,12 @@ object LocalStore {
         get() = getJsonObject().get("cookieS")?.asString ?: ""
         set(value) {
             updateJsonObject(getJsonObject().apply { add("cookieS", value) })
+        }
+
+    var proxy: String
+        get() = getJsonObject().get("proxy")?.asString ?: ""
+        set(value) {
+            updateJsonObject(getJsonObject().apply { add("proxy", value) })
         }
 
 }
