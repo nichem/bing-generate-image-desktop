@@ -63,6 +63,12 @@ object LocalStore {
     fun getImageFiles(): List<File> {
         return imagesDir.listFiles()?.filter {
             it.name.endsWith(".jpeg") && !it.isHidden
+        }?.sortedByDescending {
+            it.lastModified()
         } ?: emptyList()
+    }
+
+    fun getImagesDir(): File {
+        return imagesDir
     }
 }
