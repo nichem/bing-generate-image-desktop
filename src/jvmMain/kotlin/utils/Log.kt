@@ -28,4 +28,6 @@ object Log {
     enum class Level {
         ERROR, DEBUG
     }
+
+    fun getLogFile(): File = logFile
 }
