@@ -36,8 +36,11 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "cmp"
+            packageName = "BingAI绘画"
             packageVersion = "1.0.0"
+            windows {
+                iconFile.set(project.file("icon.ico"))
+            }
         }
     }
 }
