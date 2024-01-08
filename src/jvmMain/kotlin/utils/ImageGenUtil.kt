@@ -92,7 +92,7 @@ class ImageGenUtil(private val u: String, private val s: String, private val pro
                 return emptyList()
             } else {
                 text = res2?.body?.string() ?: ""
-                Log.d("test", "+++ <$text>")
+                Log.d("test", "result text: $text")
                 if ("errorMessage" in text || text.isEmpty()) delay(1000)
                 else break
             }

@@ -38,21 +38,19 @@ object LocalStore {
         set(value) {
             updateJsonObject(getJsonObject().apply { add("num", value) })
         }
-    var cookieU: String
-        get() = getJsonObject().get("cookieU")?.asString ?: ""
-        set(value) {
-            updateJsonObject(getJsonObject().apply { add("cookieU", value) })
-        }
-    var cookieS: String
-        get() = getJsonObject().get("cookieS")?.asString ?: ""
-        set(value) {
-            updateJsonObject(getJsonObject().apply { add("cookieS", value) })
-        }
 
-    var proxy: String
-        get() = getJsonObject().get("proxy")?.asString ?: ""
+    data class Setting(
+        var cookieU: String = "",
+        var cookieS: String = "",
+        var proxy: String = "",
+        var isShowImageList: Boolean = true,
+        var isOutputLog: Boolean = false
+    )
+
+    var setting: Setting
+        get() = gson.fromJson(configFile.readText(), Setting::class.java)
         set(value) {
-            updateJsonObject(getJsonObject().apply { add("proxy", value) })
+            configFile.writeText(gson.toJson(value))
         }
 
     fun getNewImageFile(): File {
