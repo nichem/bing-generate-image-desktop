@@ -36,7 +36,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "BingAI绘画"
+            packageName = "BingAIDraw"
             packageVersion = "1.0.0"
             windows {
                 iconFile.set(project.file("icon.ico"))

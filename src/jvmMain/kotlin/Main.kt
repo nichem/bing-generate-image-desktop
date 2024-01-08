@@ -9,10 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import ui.BtnState
-import ui.ImageList
-import ui.SendLayout
-import ui.SettingDialog
+import ui.*
 import utils.DownloadUtil
 import utils.ImageGenUtil
 import utils.LocalStore
@@ -30,6 +27,7 @@ fun App(settingIsVisible: Boolean, onSettingClose: () -> Unit) {
         var refresh by remember {
             mutableStateOf(0)
         }
+        var toast by remember { mutableStateOf("") }
         val scope = rememberCoroutineScope()
         Column(
             Modifier.fillMaxSize(),
@@ -42,7 +40,13 @@ fun App(settingIsVisible: Boolean, onSettingClose: () -> Unit) {
                 if (prompt.isBlank()) return@SendLayout
                 scope.launch(IO) {
                     getBtnState = getBtnState.copy(enable = false, text = "获取中")
-                    val list = loadImageUrls(prompt) {
+                    val setting = LocalStore.setting
+                    if (setting.cookieU.isBlank() || setting.cookieS.isBlank()) {
+                        toast = "你还未设置cookie"
+                        getBtnState = getBtnState.copy(enable = true, text = "提示词")
+                        return@launch
+                    }
+                    val list = loadImageUrls(prompt, setting) {
                         getBtnState = getBtnState.copy(text = "获取中：$it")
                     }
                     list.forEachIndexed { index, url ->
@@ -60,11 +64,21 @@ fun App(settingIsVisible: Boolean, onSettingClose: () -> Unit) {
         SettingDialog(settingIsVisible, onClose = onSettingClose) {
             refresh++
         }
+        if (toast.isNotBlank()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Toast(toast) {
+                    toast = ""
+                }
+            }
+        }
     }
 }
 
-private suspend fun loadImageUrls(prompt: String, onCallback: (msg: String) -> Unit): List<String> {
-    val setting = LocalStore.setting
+private suspend fun loadImageUrls(
+    prompt: String,
+    setting: LocalStore.Setting,
+    onCallback: (msg: String) -> Unit
+): List<String> {
     val genImage = ImageGenUtil(
         setting.cookieU, setting.cookieS, setting.proxy
     )
